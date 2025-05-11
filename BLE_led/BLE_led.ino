@@ -23,7 +23,7 @@ BLECharacteristic accCharacteristic("0dd54ba7-6456-4cf9-87d3-e2b3319cb5d1",
 
 //BLEByteCharacteristic gyrCharacteristic("0dd54ba8-6456-4cf9-87d3-e2b3319cb5d1", BLERead | BLENotify, sizeof(float) *3); //Lectura y actualizaciones 
 
-
+BLEByteCharacteristic switchCharacteristic("2A57", BLERead | BLEWrite);
 
 
 void setup() {
@@ -54,12 +54,13 @@ void setup() {
 
   // add the characteristic to the service
   imuService.addCharacteristic(accCharacteristic);
+  imuService.addCharacteristic(switchCharacteristic);
 
   // add service
   BLE.addService(imuService);
 
   // set the initial value for the characteristic:
-  //switchCharacteristic.writeValue(0);
+  switchCharacteristic.writeValue(0);
 
   // start advertising
   BLE.advertise();
@@ -81,6 +82,7 @@ void loop() {
 
     // while the central is still connected to peripheral:
     while (central.connected()) {
+      if(switchCharacteristic){
       ReadData();
       memcpy(buffer, &SensorData, sizeof(SensorData));
       accCharacteristic.writeValue(buffer, sizeof(SensorData_t));
@@ -93,6 +95,7 @@ void loop() {
     
    
     delay(500);
+    }
     }
   }
       // if the remote device wrote to the characteristic,
